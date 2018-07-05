@@ -1,5 +1,9 @@
 module.exports = function(app){
 
+	const PAGAMENTO_CRIADO = "CRIADO";
+	const PAGAMENTO_CONFIRMADO = "CONFIRMADO";
+	const PAGAMENTO_CANCELADO = "CANCELADO";
+
 	app.get("/pagamentos", function(req, res){
 		res.send("ok");
 	});
@@ -71,5 +75,52 @@ module.exports = function(app){
 		}
 
 	});
+
+	app.put("/pagamentos/pagamento/:id", function(req,res){
+
+		var pagamento = {};
+		var id = req.body.id;
+
+		pagamento.id = id;
+		pagamento.status = PAGAMENTO_CONFIRMADO;
+
+
+		var connection = app.persistencia.connectionFactory();
+		var pagamentoDao = new app.persistencia.PagamentoDao(connection);
+
+		pagamentoDao.atualiza(pagamento, function(erro){
+			if (erro) {
+				res.status(500).send(erro);
+				return;
+			}
+			console.log("Pagamento Atualizado");
+			res.send(pagamento);
+		})
+
+	})
+
+	app.delete("pagamentos/pagamento/:id", function(req, res){
+
+		var pagamento = {};
+		var id = req.body.id;
+
+		pagamento.id = id;
+		pagamento.status = PAGAMENTO_CANCELADO;
+
+		var connection = app.persistencia.connectionFactory();
+		var pagamentoDao = new app.persistencia.PagamentoDao(connection);
+
+		pagamento.atualiza(pagamento, function(erro){
+			if (erro) {
+				res.status(500).send(erro);
+				return;
+			}
+
+			console.log("Pagamento Canceloado com sucesso");
+			res.status(204).send(pagamento);
+
+		})
+
+	})
 
 }
