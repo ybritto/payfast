@@ -8,6 +8,47 @@ module.exports = function(app){
 		res.send("ok");
 	});
 
+	app.get("/pagamentos/pagamento/:id", function(req, res){
+
+		var id = req.params.id;
+		console.log('consultando pagamento');
+
+		var cache = new app.servicos.memcachedClient();
+
+		cache.get('pagamento-' + id, function(err, data){
+
+		  if (err || !data) {
+
+		    console.log('MISS - Chave não encontrada no cache');
+				var connection = app.persistencia.connectionFactory();
+				var pagamentoDao = new app.persistencia.PagamentoDao(connection);
+
+				pagamentoDao.buscaPorId(id, function(erro, resultado){
+
+					if (erro) {
+						console.log('erro ao consultar no banco: ' + erro);
+						res.status(500).send(erro);
+						return;
+					}
+
+					console.log('pagamento encontrado:' + JSON.stringify(resultado));
+					res.json(resultado);
+					return;
+
+				});
+
+		  } else {
+
+		    console.log('HIT - valor:' + JSON.stringify(data));
+				res.json(data);
+				return;
+
+		  }
+
+		});
+
+	})
+
 	app.post("/pagamentos/pagamento", function(req, res){
 
 		var body = req.body;
@@ -33,6 +74,7 @@ module.exports = function(app){
 			console.log(cartao);
 
 			var clienteCartoes = new app.servicos.clienteCartoes();
+
 			clienteCartoes.autoriza(cartao,function(exception, request, response,retorno){
 				if(exception){
 					console.log(exception);
@@ -41,15 +83,20 @@ module.exports = function(app){
 				}
 				console.log(retorno);
 
-				res.location('/pagamentos/pagamento' + pagamento.id);
+				res.location('/pagamentos/pagamento' + retorno.id);
 				var response = {
 					dados_do_pagamento: pagamento,
 					cartao: retorno,
 					links: [
 						{
-							href: "http://localhost:3000/pagamentos/pagamento/" + pagamento.id,
+							href: "http://localhost:3000/pagamentos/pagamento/" + retorno.insertId,
 							rel: "cancelar",
 							method: "DELETE"
+						},
+						{
+							href: "http://localhost:3000/pagamentos/pagamento/" + retorno.insertId,
+							rel: "buscar",
+							method: "GET"
 						}
 					]
 				}
@@ -66,10 +113,45 @@ module.exports = function(app){
 
 			console.log("Processando pagamento...");
 			pagamentoDao.salva(pagamento, function(exception, result){
-				console.log("Pagamento criado " + result);
-				res.location('/pagamentos/pagamento/' + result.insertId);
-	      pagamento.id = result.insertId;
-	      res.status(201).json(pagamento);
+
+				if (exception) {
+					console.log(exception);
+					res.status(500).send('Erro ao salvar no banco:' + exception);
+					return;
+				}
+
+				console.log("Pagamento criado " + JSON.stringify(pagamento));
+
+				var id = result.insertId;
+				res.location('/pagamentos/pagamento/' + id);
+	      pagamento.id = id;
+
+				var cache = new app.servicos.memcachedClient();
+				cache.set('pagamento-' + id, pagamento, 10000, function(err){
+				  console.log('nova chave: pagamento-' + id);
+				})
+
+				res.location('/pagamentos/pagamento' + id);
+				var response = {
+					dados_do_pagamento: pagamento,
+					cartao: pagamento,
+					links: [
+						{
+							href: "http://localhost:3000/pagamentos/pagamento/" + id,
+							rel: "cancelar",
+							method: "DELETE"
+						},
+						{
+							href: "http://localhost:3000/pagamentos/pagamento/" + id,
+							rel: "buscar",
+							method: "GET"
+						}
+					]
+				}
+
+				res.status(201).json(response);
+				return;
+
 			})
 
 		}
