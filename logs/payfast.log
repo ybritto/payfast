@@ -1,3 +1,14 @@
 {"message":"consultando pagamento:11","level":"info"}
 {"errno":"ECONNREFUSED","code":"ECONNREFUSED","syscall":"connect","address":"127.0.0.1","port":3306,"fatal":true,"level":"error"}
 {"message":"::1 - - [16/Jul/2018:19:39:34 +0000] \"GET /pagamentos/pagamento/11 HTTP/1.1\" 500 129\n","level":"info"}
+{"message":"consultando pagamento:11","level":"info"}
+{"errno":"ECONNREFUSED","code":"ECONNREFUSED","syscall":"connect","address":"127.0.0.1","port":3306,"fatal":true,"level":"error"}
+{"message":"::1 - - [18/Jul/2018:19:08:43 +0000] \"GET /pagamentos/pagamento/11 HTTP/1.1\" 500 129\n","level":"info"}
+{"message":"consultando pagamento:11","level":"info"}
+{"fatal":true,"code":"PROTOCOL_CONNECTION_LOST","level":"error"}
+{"message":"::1 - - [18/Jul/2018:19:09:02 +0000] \"GET /pagamentos/pagamento/11 HTTP/1.1\" 500 64\n","level":"info"}
+{"message":"consultando pagamento:11","level":"info"}
+{"message":"::1 - - [18/Jul/2018:19:09:06 +0000] \"GET /pagamentos/pagamento/11 HTTP/1.1\" 200 161\n","level":"info"}
+{"message":"::1 - - [18/Jul/2018:19:09:21 +0000] \"POST /pagamentos/pagamento HTTP/1.1\" 201 544\n","level":"info"}
+{"message":"consultando pagamento:12","level":"info"}
+{"message":"::1 - - [18/Jul/2018:19:09:30 +0000] \"GET /pagamentos/pagamento/12 HTTP/1.1\" 200 161\n","level":"info"}

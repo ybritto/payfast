@@ -1,1 +1,3 @@
 {"errno":"ECONNREFUSED","code":"ECONNREFUSED","syscall":"connect","address":"127.0.0.1","port":3306,"fatal":true,"level":"error"}
+{"errno":"ECONNREFUSED","code":"ECONNREFUSED","syscall":"connect","address":"127.0.0.1","port":3306,"fatal":true,"level":"error"}
+{"fatal":true,"code":"PROTOCOL_CONNECTION_LOST","level":"error"}
